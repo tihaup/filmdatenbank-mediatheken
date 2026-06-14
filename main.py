@@ -55,7 +55,7 @@ print("✓ Imports und Konfiguration geladen")
 # ⚠️ Wichtig: Content-Type muss text/plain sein, sonst antwortet die API mit 400.
 #
 
-def lade_mediathek_filme(sender, topic="film", size=500, duration_min=MIN_DURATION_SEC):
+def lade_mediathek_filme(sender, topic="film", size=75, duration_min=MIN_DURATION_SEC):
     """
     Lädt Filme von MediathekViewWeb.
     Gibt eine Liste von Einträgen zurück (jeder Eintrag = eine Versionsvariant eines Films).
