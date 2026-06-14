@@ -1,0 +1,31 @@
+name: Mediathek Tracker
+
+on:
+  schedule:
+    - cron: '0 9 * * 5'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Pakete installieren
+        run: pip install -r requirements.txt
+
+      - name: Script ausfuehren
+        run: python main.py
+        env:
+          TMDB_KEY: ${{ secrets.TMDB_KEY }}
+
+      - name: Ergebnisse speichern
+        uses: actions/upload-artifact@v4
+        with:
+          name: mediathek-${{ github.run_id }}
+          path: output/*.xlsx
+          retention-days: 30
