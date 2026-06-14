@@ -1,5 +1,10 @@
-# Sender die abgefragt werden
-SENDER = ["ARTE.DE", "ZDF", "ARD", "3sat"]
+# Sender und deren Suchthemen
+SENDER = {
+    "ARTE.DE": "film",
+    "ZDF": "film",
+    "ARD": "film",
+    "3sat": "#Spielfilm"
+}
 
 # Lieblingsregisseure
 LIEBLINGSREGISSEURE = [
