@@ -36,7 +36,9 @@ LETTERBOXD_DELAY = 0.8
 MIN_DURATION_SEC = 3600
 
 # TMDb API-Key (kostenlos von themoviedb.org/settings/api)
-TMDB_KEY = os.environ.get('TMDB_KEY', 'c0d452e595235cb23464d05a2283939e')
+TMDB_KEY = os.environ.get('TMDB_KEY', '')
+if not TMDB_KEY:
+    raise ValueError("TMDB_KEY Umgebungsvariable nicht gesetzt!")
 
 print("✓ Imports und Konfiguration geladen")
 
