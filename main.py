@@ -16,6 +16,7 @@ from collections import defaultdict
 
 import pandas as pd
 from bs4 import BeautifulSoup
+# from IPython.display import display, HTML  # ← nur in Jupyter, nicht in main.py
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
@@ -94,11 +95,14 @@ def lade_mediathek_filme(sender, topic="film", size=75, duration_min=MIN_DURATIO
     return filme
 
 
+MAX_PRO_SENDER = 75
+
 rohdaten = []
 for sender, topic in SENDER.items():
     print(f'Lade {sender}...')
     treffer = lade_mediathek_filme(sender, topic)
-    print(f'  → {len(treffer)} Treffer')
+    treffer = treffer[:MAX_PRO_SENDER]
+    print(f'  → {len(treffer)} Treffer (begrenzt auf {MAX_PRO_SENDER})')
     rohdaten.extend(treffer)
 print(f'Gesamt: {len(rohdaten)} Einträge')
 
@@ -626,5 +630,38 @@ print(f"  {len(sortiert)} Filme   |   "
       f"{sum(1 for e in sortiert if (e.get('lb_rating') or 0) > 4.0)} sehr gut   |   "
       f"{sum(1 for e in sortiert if 3.66 <= (e.get('lb_rating') or 0) <= 4.0)} gut   |   "
       f"{sum(1 for e in sortiert if 3.4 <= (e.get('lb_rating') or 0) < 3.66)} okay")
+
+# ── Datenbank aktualisieren ────────────────────────────────────────────
+def aktualisiere_datenbank(ergebnisse):
+    """
+    1. Neue Filme zu filme_db.csv hinzufügen
+    2. letzte_woche.csv mit aktuellem Lauf überschreiben
+    """
+    # Aktuelle Ergebnisse als DataFrame
+    df_neu = pd.DataFrame([{
+        'titel':       e.get('lb_title') or e.get('arte_titel',''),
+        'sender':      e.get('channel',''),
+        'lb_rating':   e.get('lb_rating'),
+        'lb_director': e.get('lb_director',''),
+        'lb_year':     e.get('lb_year',''),
+        'lb_url':      e.get('lb_url',''),
+        'datum_gesehen': '',
+    } for e in ergebnisse])
+
+    # filme_db.csv: neue Zeilen anhängen (keine Duplikate)
+    if os.path.exists('data/filme_db.csv'):
+        df_alt = pd.read_csv('data/filme_db.csv')
+        df_alle = pd.concat([df_alt, df_neu], ignore_index=True)
+        df_alle = df_alle.drop_duplicates(subset=['titel','sender'], keep='first')
+    else:
+        df_alle = df_neu
+    df_alle.to_csv('data/filme_db.csv', index=False)
+
+    # letzte_woche.csv: überschreiben
+    df_lw = df_neu[['titel','sender']]
+    df_lw.to_csv('data/letzte_woche.csv', index=False)
+
+    print(f'DB gesamt: {len(df_alle)} Einträge')
+    print(f'Diese Woche: {len(df_neu)} Einträge')
 
 aktualisiere_datenbank(ergebnisse)
