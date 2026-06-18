@@ -27,5 +27,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mediathek-${{ github.run_id }}
-          path: output/*.xlsx
+          path: arte_letterboxd_*.xlsx
           retention-days: 30
