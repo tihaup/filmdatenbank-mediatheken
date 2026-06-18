@@ -1,23 +1,22 @@
 name: Mediathek Tracker
-
 on:
   schedule:
     - cron: '0 9 * * 5'
   workflow_dispatch:
+
+permissions:
+  contents: write          # NEU: nötig damit der git push am Ende erlaubt ist
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Pakete installieren
         run: pip install -r requirements.txt
-
       - name: Script ausfuehren
         run: python main.py
         env:
@@ -29,3 +28,12 @@ jobs:
           name: mediathek-${{ github.run_id }}
           path: arte_letterboxd_*.xlsx
           retention-days: 30
+
+      - name: Datenbank zurueck ins Repo committen   # NEU
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data/filme_db.csv data/letzte_woche.csv
+          git commit -m "DB-Update $(date +%Y-%m-%d)" || echo "Keine Aenderungen"
+          git push
+
