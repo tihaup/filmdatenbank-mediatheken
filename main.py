@@ -95,7 +95,7 @@ def lade_mediathek_filme(sender, topic="film", size=75, duration_min=MIN_DURATIO
     return filme
 
 
-MAX_PRO_SENDER = 25
+MAX_PRO_SENDER = 150
 
 rohdaten = []
 for sender, topic in SENDER.items():
