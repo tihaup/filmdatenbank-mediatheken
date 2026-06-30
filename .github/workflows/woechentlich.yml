@@ -33,7 +33,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add data/filme_db.csv data/letzte_woche.csv data/aktuelle_woche.csv   
+          git add data/ output/  
           git commit -m "DB-Update $(date +%Y-%m-%d)" || echo "Keine Aenderungen"
           git push
 
