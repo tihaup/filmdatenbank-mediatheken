@@ -1,6 +1,6 @@
 # 🎬 Mediathek Film Tracker
 
-Dieses Projekt durchsucht jede Woche automatisch die Mediatheken der öffentlich-rechtlichen Sender (Arte, ZDF, ARD, 3sat) nach Spielfilmen und reichert sie mit Bewertungen von **Letterboxd** an. Zusätzlich gleicht es die Filme mit deinem **MUBI**-Konto ab: Es zeigt dir, welche Filme von deiner MUBI-Watchlist gerade verfügbar sind, blendet deine eigenen MUBI-Bewertungen ein und erkennt automatisch deine Lieblingsregisseur:innen anhand deiner am besten bewerteten Filme. Das Ergebnis ist eine übersichtliche, farbcodierte Excel-Tabelle und eine direkt im Browser lesbare CSV-Liste – einmal pro Woche frisch erzeugt, ganz von allein.
+Dieses Projekt durchsucht jede Woche automatisch die Mediatheken der öffentlich-rechtlichen Sender (Arte, ZDF, ARD, 3sat) nach Spielfilmen und reichert sie mit Bewertungen von **Letterboxd** an. Zusätzlich gleicht es die Filme mit deinem **MUBI**-Konto ab: Es zeigt dir, welche Filme von deiner MUBI-Watchlist gerade verfügbar sind, blendet deine eigenen MUBI-Bewertungen ein und erkennt automatisch deine Lieblingsregisseur:innen anhand deiner am besten bewerteten Filme. Das Ergebnis ist eine übersichtliche, farbcodierte Excel-Tabelle und eine direkt im Browser lesbare CSV-Liste.
 
 Technisch läuft alles über einen kostenlosen Automatik-Dienst von GitHub (GitHub Actions). Du musst nichts auf deinem Computer installieren und nichts laufen lassen – nach der einmaligen Einrichtung erledigt sich alles selbst.
 
