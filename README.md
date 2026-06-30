@@ -1,126 +1,82 @@
-# 🎬 Mediathek Film Tracker — Arte × Letterboxd
+# 🎬 Mediathek Film Tracker
 
-**An automated weekly digest of feature films streaming on Germany's public-broadcast media libraries, ranked by their Letterboxd community rating.**
+Dieses Projekt durchsucht jede Woche automatisch die Mediatheken der öffentlich-rechtlichen Sender (Arte, ZDF, ARD, 3sat) nach Spielfilmen und reichert sie mit Bewertungen von **Letterboxd** an. Zusätzlich gleicht es die Filme mit deinem **MUBI**-Konto ab: Es zeigt dir, welche Filme von deiner MUBI-Watchlist gerade verfügbar sind, blendet deine eigenen MUBI-Bewertungen ein und erkennt automatisch deine Lieblingsregisseur:innen anhand deiner am besten bewerteten Filme. Das Ergebnis ist eine übersichtliche, farbcodierte Excel-Tabelle und eine direkt im Browser lesbare CSV-Liste – einmal pro Woche frisch erzeugt, ganz von allein.
 
-Every Friday a GitHub Actions workflow pulls the newest films from the public broadcasters (Arte, ZDF, ARD, 3sat), enriches each one with its Letterboxd rating, director and synopsis, and produces a colour-coded Excel report — so the best films currently available are visible at a glance, with a separate sheet highlighting new titles from a personal list of favourite directors.
-
----
-
-## Why this project
-
-Public media libraries host hundreds of films, but their interfaces make it hard to answer a simple question: *what's actually worth watching right now?* This tool answers it by combining three data sources into one ranked, filterable table and running entirely on its own schedule.
-
-It demonstrates a small but complete data pipeline:
-
-- **REST API consumption** with a non-obvious content-type requirement
-- **Multi-source enrichment** — cross-referencing a German title against TMDb to reach the right Letterboxd page
-- **HTML / JSON-LD scraping** of server-rendered metadata
-- **Deduplication logic** that picks the best language version of each film
-- **Styled report generation** with `openpyxl` (conditional colour-coding, multiple sheets, frozen headers, autofilters)
-- **CI/CD automation** with GitHub Actions, including state that persists across scheduled runs
+Technisch läuft alles über einen kostenlosen Automatik-Dienst von GitHub (GitHub Actions). Du musst nichts auf deinem Computer installieren und nichts laufen lassen – nach der einmaligen Einrichtung erledigt sich alles selbst.
 
 ---
 
-## How it works
+## So nutzt du den Tracker mit deinem eigenen MUBI-Konto
 
-The pipeline runs in five steps:
+Diese Anleitung ist für alle gedacht – auch ohne Programmierkenntnisse. Du brauchst nur ein GitHub-Konto (kostenlos) und ein MUBI-Konto. Plane etwa 15 Minuten ein.
 
-**1. Load the film list** — Films are fetched from the [MediathekViewWeb](https://mediathekviewweb.de/) API, which aggregates all German public-broadcast libraries. Results are filtered per channel, restricted to a minimum runtime of 60 minutes (to exclude short films), and sorted newest-first.
+> **Wichtige Voraussetzung:** Dein MUBI-Profil muss **öffentlich** sein, sonst kann der Tracker deine Watchlist und Bewertungen nicht lesen. Das stellst du in den MUBI-Einstellungen unter Privatsphäre ein.
 
-**2. Pick the best version** — The same film is often offered in up to five variants (dubbed, original-with-subtitles, audio description, etc.). For each title the pipeline keeps exactly one: the original version with German subtitles where available, otherwise the German dub — and discards the rest.
+### Schritt 1: Kostenlosen TMDb-Schlüssel besorgen
 
-**3. Enrich via TMDb → Letterboxd** — Letterboxd loads its search results with JavaScript, so direct scraping fails. Instead the German title is looked up on TMDb to obtain a stable film ID, and `letterboxd.com/tmdb/{id}/` redirects straight to the correct film page. That page's JSON-LD block yields the rating, director, year and synopsis without needing a browser.
+Der Tracker nutzt die Filmdatenbank TMDb, um Filme zu finden. Dafür braucht es einen kostenlosen Zugangsschlüssel (API-Key):
 
-**4. Query every film** — Each candidate runs through the full pipeline with rate-limiting between requests to stay polite to both APIs.
+1. Gehe auf [themoviedb.org](https://www.themoviedb.org/) und erstelle ein kostenloses Konto.
+2. Klicke oben rechts auf dein Profilbild → **Einstellungen** (Settings).
+3. Wähle links im Menü **API**.
+4. Beantrage einen Schlüssel („Request an API Key") – wähle den Typ **Developer**. Bei den Formularfeldern kannst du Beliebiges eintragen (z. B. „privates Hobbyprojekt").
+5. Du bekommst einen **API Key (v3 auth)** – eine lange Zeichenfolge. Kopiere sie und leg sie kurz beiseite, du brauchst sie in Schritt 4.
 
-**5. Build the report** — Results are sorted by rating and written to a styled Excel workbook. A rating-based colour scale flags the strongest films, and a second sheet collects anything directed by a name on the favourites list. A small CSV "database" tracks which films have already been seen, so each run can distinguish genuinely new titles from repeats.
+### Schritt 2: Das Projekt in dein eigenes GitHub kopieren (forken)
 
----
+1. Logge dich bei [github.com](https://github.com/) ein (oder erstelle ein kostenloses Konto).
+2. Öffne dieses Repository und klicke oben rechts auf den Button **Fork**.
+3. Bestätige – GitHub legt jetzt eine eigene Kopie in deinem Konto an. Mit dieser Kopie arbeitest du ab jetzt.
 
-## Tech stack
+### Schritt 3: Deine MUBI-ID eintragen
 
-| Purpose | Library |
-| --- | --- |
-| HTTP requests | `requests` |
-| HTML parsing | `beautifulsoup4`, `lxml` |
-| Data handling | `pandas` |
-| Excel generation | `openpyxl` |
-| Automation | GitHub Actions |
+1. Finde deine MUBI-User-ID: Öffne dein MUBI-Profil im Browser und schau in die Adresszeile. Sie sieht so aus: `mubi.com/de/users/12345678/...` – die Zahl (hier `12345678`) ist deine ID.
+2. In deinem geforkten GitHub-Repo: Klicke auf die Datei **`config.py`**.
+3. Klicke rechts oben auf das **Stift-Symbol** (Bearbeiten).
+4. Suche die Zeile `MUBI_USER_ID = ...` und ersetze die Zahl durch deine eigene.
+5. Klicke oben rechts auf **Commit changes** (Änderungen speichern).
 
-External services: **MediathekViewWeb API** (no key required) and the **TMDb API** (free key required).
+### Schritt 4: Deinen TMDb-Schlüssel sicher hinterlegen
 
----
+Damit dein Schlüssel nicht öffentlich im Code steht, speichert GitHub ihn an einem geschützten Ort („Secret"):
 
-## Project structure
+1. In deinem Repo: Klicke oben auf **Settings** (Einstellungen).
+2. Links im Menü: **Secrets and variables** → **Actions**.
+3. Klicke auf **New repository secret**.
+4. Trage bei **Name** exakt `TMDB_KEY` ein (genau so geschrieben).
+5. Füge bei **Secret** deinen TMDb-Schlüssel aus Schritt 1 ein.
+6. Klicke **Add secret**.
 
-```
-filmdatenbank-mediatheken/
-├── main.py                      # Full pipeline as a runnable script
-├── config.py                    # Channels, favourite directors, rating thresholds
-├── requirements.txt             # Python dependencies
-├── notebooks/
-│   └── arte_letterboxd.ipynb    # Exploratory notebook version with sanity checks
-├── data/                        # Persisted state (tracked in the repo)
-│   ├── filme_db.csv             # Cumulative database of all films seen
-│   └── letzte_woche.csv         # Last run's titles, for new-film detection
-└── .github/workflows/
-    └── mediathek-tracker.yml    # Weekly scheduled run
-```
+### Schritt 5: Die Automatik aktivieren und den ersten Lauf starten
 
-> Note: the code, comments and variable names are written in German; this README is in English.
+Bei geforkten Repos ist die Automatik aus Sicherheitsgründen zunächst deaktiviert. So schaltest du sie ein:
 
----
+1. Klicke in deinem Repo oben auf den Reiter **Actions**.
+2. Falls ein grüner Hinweis erscheint, klicke auf **„I understand my workflows, go ahead and enable them"**.
+3. Wähle links den Workflow **Mediathek Tracker** aus.
+4. Klicke rechts auf **Run workflow** → noch einmal **Run workflow**, um einen ersten Lauf von Hand zu starten.
+5. Warte ein paar Minuten – der Lauf erscheint in der Liste und wird grün, wenn alles geklappt hat.
 
+### Schritt 6: Deine Ergebnisse ansehen
 
+Es gibt zwei Wege, an die Filmliste zu kommen:
 
-## Automation (GitHub Actions)
+**Schnell im Browser (empfohlen):** Öffne in deinem Repo den Ordner **`data`** und klicke auf **`aktuelle_woche.csv`**. GitHub zeigt sie direkt als Tabelle an – das ist die Liste der neuen Filme dieser Woche.
 
-The workflow runs every Friday at 09:00 UTC and can also be triggered manually from the **Actions** tab via *Run workflow*.
+**Als formatierte Excel:** Gehe auf den Reiter **Actions**, öffne den letzten Lauf und scrolle ganz nach unten zum Abschnitt **Artifacts**. Dort liegt die farbcodierte Excel-Datei zum Herunterladen.
 
-```yaml
-on:
-  schedule:
-    - cron: '0 9 * * 5'   # Fridays, 09:00 UTC
-  workflow_dispatch:
-```
+### Schritt 7: Zurücklehnen
 
-On each run the workflow:
-
-1. Installs dependencies and runs `main.py` (the TMDb key is supplied from repository secrets).
-2. Uploads the generated Excel as a downloadable **artifact**, retained for 30 days.
-3. Commits the updated `data/` CSV files back to the repo, so the "already seen" state survives between runs.
-
-To download a report, open the relevant run under the **Actions** tab and grab the file from the **Artifacts** section at the bottom.
-
-> The workflow needs `permissions: contents: write` so the scheduled run can commit its state back. Because each run pushes a commit, remember to `git pull` before pushing local changes.
+Ab jetzt läuft der Tracker **jeden Freitagmorgen automatisch**. Du musst nichts weiter tun – schau einfach am Wochenende in deine `aktuelle_woche.csv` oder lade dir die neue Excel herunter.
 
 ---
 
-## Example output
+## Häufige Fragen
 
-A sample report is included in this repository: **`arte_letterboxd_20260618.xlsx`**.
+**Der Lauf wird rot / schlägt fehl.** Meist stimmt etwas mit dem TMDb-Schlüssel nicht. Prüfe in Schritt 4, ob das Secret exakt `TMDB_KEY` heißt und der Schlüssel korrekt eingefügt wurde (ohne Anführungszeichen oder Leerzeichen).
 
-The main sheet lists each film with the following columns, sorted by rating and colour-coded:
+**Meine Watchlist taucht nicht auf.** Stelle sicher, dass dein MUBI-Profil öffentlich ist (siehe Voraussetzung oben) und deine MUBI-ID in `config.py` korrekt eingetragen ist.
 
-| Column | Content |
-| --- | --- |
-| Titel | Film title (Letterboxd / original) |
-| Sender | Broadcasting channel |
-| Jahr | Release year |
-| Regie | Director |
-| LB ★ | Letterboxd rating |
-| Stimmen | Number of ratings |
-| Dauer (min) | Runtime in minutes |
-| Arte-Datum | Date added to the library |
-| Beschreibung | Synopsis |
-| Arte-Link / Letterboxd-Link | Direct links to both pages |
+**Kann ich die Sender ändern?** Ja – in `config.py` im Abschnitt `SENDER`. Für die meisten ist die Voreinstellung aber genau richtig.
 
-Rating-based colour scale:
-
-| Colour | Rating | Meaning |
-| --- | --- | --- |
-| 🟢 Medium green | ★ > 4.0 | Very good |
-| 🟩 Light green | ★ 3.66 – 4.0 | Good |
-| 🟡 Light yellow | ★ 3.4 – 3.65 | Okay |
-
-A second sheet, **Lieblingsregisseure** ("favourite directors"), filters the same data down to films directed by anyone on the configured favourites list.
+**Die Lieblingsregisseure stimmen nicht.** Sie werden automatisch aus deinen MUBI-Filmen mit 4 oder 5 Sternen bestimmt (ab 2 Filmen pro Regie). Je mehr du auf MUBI bewertest, desto besser wird die Liste.
