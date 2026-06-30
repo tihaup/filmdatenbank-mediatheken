@@ -26,14 +26,15 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mediathek-${{ github.run_id }}
-          path: arte_letterboxd_*.xlsx
+          path: output/*.xlsx                         
           retention-days: 30
 
-      - name: Datenbank zurueck ins Repo committen   # NEU
+      - name: Datenbank zurueck ins Repo committen
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add data/filme_db.csv data/letzte_woche.csv
+          git add data/filme_db.csv data/letzte_woche.csv data/aktuelle_woche.csv   
           git commit -m "DB-Update $(date +%Y-%m-%d)" || echo "Keine Aenderungen"
           git push
+
 
