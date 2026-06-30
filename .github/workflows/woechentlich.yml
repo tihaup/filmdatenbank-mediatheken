@@ -37,4 +37,5 @@ jobs:
           git commit -m "DB-Update $(date +%Y-%m-%d)" || echo "Keine Aenderungen"
           git push
 
+          
 
