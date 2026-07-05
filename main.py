@@ -805,7 +805,13 @@ def main():
                 mubi.reichere_mit_mubi_an(ergebnisse)
         except Exception as fehler:
             print(f"⚠ MUBI-Integration übersprungen: {fehler}")
-
+    
+    # Watchlist-Blatt soll nur NEUE Watchlist-Filme zeigen (nicht wöchentlich
+    # dieselben). Deshalb Treffer auf neue_filme einschränken.
+    neue_ids = {id(e) for e in neue_filme}
+    watchlist_treffer = [e for e in watchlist_treffer if id(e) in neue_ids]
+    print(f"✓ {len(watchlist_treffer)} davon neu (fürs Watchlist-Blatt)")
+    
     # 6. Lieblingsregisseure = handgepflegte Liste (config) + automatische (MUBI)
     alle_regisseure = list(LIEBLINGSREGISSEURE) + auto_regisseure
     favoriten = []
