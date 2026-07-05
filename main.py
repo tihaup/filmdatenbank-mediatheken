@@ -648,16 +648,16 @@ def baue_excel(neue_filme, favoriten, watchlist_treffer):
     print(f"✓ Blatt 'Lieblingsregisseure' mit {len(favoriten_sortiert)} Filmen erstellt")
 
     # ── Drittes Blatt: MUBI-Watchlist-Treffer (bewertungsunabhängig) ────────
-    if watchlist_treffer:
-        ws3 = wb.create_sheet(title="MUBI Watchlist")
-        watchlist_sortiert = sorted(
-            watchlist_treffer,
-            key=lambda e: (e.get("mubi_rating") or 0, e.get("lb_rating") or 0),
-            reverse=True,
-        )
-        _schreibe_blatt(ws3, watchlist_sortiert, rahmen, desc_teiler=80, mit_farbe=True)
-        print(f"✓ Blatt 'MUBI Watchlist' mit {len(watchlist_sortiert)} Filmen erstellt")
-
+    # ── Drittes Blatt: MUBI-Watchlist-Treffer (immer erstellen, ggf. leer) ──
+    ws3 = wb.create_sheet(title="MUBI Watchlist")
+    watchlist_sortiert = sorted(
+        watchlist_treffer,
+        key=lambda e: (e.get("mubi_rating") or 0, e.get("lb_rating") or 0),
+        reverse=True,
+    )
+    _schreibe_blatt(ws3, watchlist_sortiert, rahmen, desc_teiler=80, mit_farbe=True)
+    print(f"✓ Blatt 'MUBI Watchlist' mit {len(watchlist_sortiert)} Filmen erstellt")
+    
     # ── Speichern ───────────────────────────────────────────────────────────
     dateiname = f"output/mediatheken_letterboxd_{datetime.now().strftime('%Y%m%d')}.xlsx"
     wb.save(dateiname)
