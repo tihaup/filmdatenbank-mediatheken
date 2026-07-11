@@ -51,6 +51,8 @@ Damit dein Schlüssel nicht öffentlich im Code steht, speichert GitHub ihn an e
 
 ### Schritt 5: Die Automatik aktivieren und den ersten Lauf starten
 
+Zur Initialisierung am besten `data`und `output` Ordner **leeren** (bis auf die Datei `.gitkeep`).
+
 Bei geforkten Repos ist die Automatik aus Sicherheitsgründen zunächst deaktiviert. So schaltest du sie ein:
 
 1. Klicke in deinem Repo oben auf den Reiter **Actions**.
