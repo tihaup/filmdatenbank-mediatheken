@@ -14,6 +14,8 @@ Diese Anleitung ist für alle gedacht – auch ohne Programmierkenntnisse. Du br
 
 ### Schritt 1: Kostenlosen TMDb-Schlüssel besorgen
 
+Zur Initialisierung einfach den `data` und `output` **Ordner leeren** (außer die Datei `.gitkeep`).
+
 Der Tracker nutzt die Filmdatenbank TMDb, um Filme zu finden. Dafür braucht es einen kostenlosen Zugangsschlüssel (API-Key):
 
 1. Gehe auf [themoviedb.org](https://www.themoviedb.org/) und erstelle ein kostenloses Konto.
